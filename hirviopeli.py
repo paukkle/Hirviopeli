@@ -274,9 +274,6 @@ class Peli:
         pygame.display.flip()
 
 
-
-
-
     def laske_kulma(self, objekti1, objekti2):  # Lasketaan kahden objektin välinen kulma
         # keskipiste-funktiolla haetaan objektien keskipisteiden x,y-koordinaatit, jotta voidaan laskea positioerot
         o1_x, o1_y = keskipiste(objekti1)  
@@ -329,8 +326,7 @@ class Peli:
             self.kolikko = None  # Jos hirviö osuu kolikkoon niin poistetaan kolikko
             self.hirvio.kolikoita += 1  # Lisätään yksi kolikko hirviön saldoon
     
-
-
+    
     def kolikkoero(self):
         return self.robo.kolikoita - self.hirvio.kolikoita
     
