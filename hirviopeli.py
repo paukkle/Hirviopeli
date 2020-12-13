@@ -303,7 +303,7 @@ class Peli:
     def osuma_hirvioon(self):
         # Haetaan robon ja hirviön keskipisteiden positioerot
         x_ero, y_ero, x_kokoero, y_kokoero = self.positioerot(self.robo, self.hirvio)
-        if x_ero <= x_kokoero and y_ero <= y_kokoero:  # Mikäli ero on riittävän pieni, niin todetaan että osuma on tapahtunut
+        if x_ero + 15 <= x_kokoero and y_ero + 15 <= y_kokoero:  # Mikäli ero on riittävän pieni, niin todetaan että osuma on tapahtunut
             self.osuma = True
             return True
 
