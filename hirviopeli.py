@@ -18,6 +18,36 @@ class Robo(Hahmo):
         self.alas = False
         self.ovicd = False
         self.ovicount = None
+        self.tiputettu_ovi = None
+
+
+    def tiputa_tavara(self, kuva, luo_tavara):
+        # Tiputetaan ovi kentälle mikäli pelaajalla on vähintään yksi kolikko ja kentällä ei ole ennestään ovea
+        if self.kolikoita > 0 and self.tiputettu_ovi == None:
+            # Oven tiputuskohta on pelaajan keskipiste
+            robo_kp = keskipiste(self)
+            tiputuskohta_x = robo_kp[0] - kuva.get_width() / 2
+            tiputuskohta_y = robo_kp[1] - kuva.get_height() / 2
+            self.tiputettu_ovi = luo_tavara(positio=(tiputuskohta_x, tiputuskohta_y))  # Kutsutaan metodia luo_tavara positio-argumentilla
+            self.kolikoita -= 1  # Oven tiputus maksaa yhden kolikon
+
+    def nosta_tavara(self, positioerot):
+        if self.tiputettu_ovi:  # Tarkistetaan onko ovi kentällä
+            x_ero, y_ero, x_kokoero, y_kokoero = positioerot(self, self.tiputettu_ovi)
+            if x_ero <= x_kokoero and y_ero <= y_kokoero:  # Katsotaan onko pelaaja riittävän lähellä ovea 
+                self.tiputettu_ovi = None  # Poistetaan ovi mikäli on
+
+
+    def liiku(self, nayton_leveys, nayton_korkeus):
+        # Liikutetaan roboa sen nopeuden verran haluttuun suuntaan ja pidetään huoli että se pysyy peliruudun sisällä
+        if self.oikealle and (self.x + mitat(self)[0]) + self.nopeus <= nayton_leveys:
+            self.x += self.nopeus
+        if self.vasemmalle and self.x - self.nopeus >= 0:
+            self.x -= self.nopeus
+        if self.ylos and self.y - self.nopeus >= 0:
+            self.y -= self.nopeus
+        if self.alas and (self.y + mitat(self)[1]) + self.nopeus <= nayton_korkeus:
+            self.y += self.nopeus
 
 
 class Hirvio(Hahmo):
@@ -58,7 +88,6 @@ class Peli:
         self.robo = Robo(self.kuvat["robo"], (self.nayton_leveys - self.kuvat["robo"].get_width(), 0), 5)
         self.hirvio = Hirvio(self.kuvat["hirvio"], (0, self.nayton_korkeus - self.kuvat["hirvio"].get_height()), 5)
         self.kolikko = self.luo_tavara()
-        self.tiputettu_ovi = None  # Kertoo onko kentälle tiputettu ovea
         self.osuma = False  # Kertoo onko peli päättynyt robotin osuessa hirviöön
 
 
@@ -103,12 +132,12 @@ class Peli:
 
                 self.robon_osuma_kolikkoon()  # Tarkistetaan osuiko robo kolikkoon
 
-                if self.tiputettu_ovi != None and self.kolikko != None:  # Katsotaan onko kentällä ovea ja kolikkoa
+                if self.robo.tiputettu_ovi != None and self.kolikko != None:  # Katsotaan onko kentällä ovea ja kolikkoa
                     self.hirvion_osuma_tavaraan(tiputus=True)  # Mikäli molemmat löytyvät, niin tarkistetaan onko hirviö osunut oveen
                 elif self.kolikko != None:
                     self.hirvion_osuma_tavaraan()  # Jos ei ole osunut oveen, niin katsotaan onko hirviö osunut kolikkoon mikäli kolikko on kentällä
 
-                self.liikuta_roboa()  # Liikutetaan robottia
+                self.robo.liiku(self.nayton_leveys, self.nayton_korkeus)  # Liikutetaan robottia
 
                 if self.hirvio.pysaytys == False and self.kolikko != None:  # Tarkistetaan onko hirviö pysähtyneenä ja kolikko kentällä
                     self.hirvion_liike()  # Jos ei ole pysähtyneenä ja kentällä on kolikko, niin hirviön liike saa jatkua
@@ -143,10 +172,10 @@ class Peli:
                     self.robo.ylos = True
                 if tapahtuma.key == pygame.K_DOWN:
                     self.robo.alas = True
-                if tapahtuma.key == pygame.K_SPACE and self.tiputettu_ovi == None and self.hirvio.pysaytys == False and self.robo.ovicd == False:
-                    self.tiputa_tavara()
-                elif tapahtuma.key == pygame.K_SPACE and self.tiputettu_ovi != None:
-                    self.nosta_tavara()
+                if tapahtuma.key == pygame.K_SPACE and self.robo.tiputettu_ovi == None and self.hirvio.pysaytys == False and self.robo.ovicd == False:
+                    self.robo.tiputa_tavara(self.kuvat["ovi"], self.luo_tavara)
+                elif tapahtuma.key == pygame.K_SPACE and self.robo.tiputettu_ovi != None:
+                    self.robo.nosta_tavara(self.positioerot)
 
             if tapahtuma.type == pygame.KEYUP:
                 if tapahtuma.key == pygame.K_RIGHT:
@@ -198,8 +227,8 @@ class Peli:
         self.naytto.blit(self.hirvio.kuva, positio(self.hirvio))
         if self.kolikko != None:  # Jos kolikko on olemassa, piirretään
             self.naytto.blit(self.kolikko.kuva, positio(self.kolikko))
-        if self.tiputettu_ovi:  # Jos ovi on tiputettuna kentälle, piirretään
-            self.naytto.blit(self.tiputettu_ovi.kuva, positio(self.tiputettu_ovi))
+        if self.robo.tiputettu_ovi:  # Jos ovi on tiputettuna kentälle, piirretään
+            self.naytto.blit(self.robo.tiputettu_ovi.kuva, positio(self.robo.tiputettu_ovi))
         if self.robo.ovicd:
             countteri = f"Ovi voidaan tiputtaa: {(self.robo.ovicount) // 60} s"
             teksti = self.fontti.render(countteri, True, (0, 0, 0))
@@ -242,16 +271,7 @@ class Peli:
         pygame.display.flip()
 
 
-    def liikuta_roboa(self):
-        # Liikutetaan roboa sen nopeuden verran haluttuun suuntaan ja pidetään huoli että se pysyy peliruudun sisällä
-        if self.robo.oikealle and (self.robo.x + mitat(self.robo)[0]) + self.robo.nopeus <= self.nayton_leveys:
-            self.robo.x += self.robo.nopeus
-        if self.robo.vasemmalle and self.robo.x - self.robo.nopeus >= 0:
-            self.robo.x -= self.robo.nopeus
-        if self.robo.ylos and self.robo.y - self.robo.nopeus >= 0:
-            self.robo.y -= self.robo.nopeus
-        if self.robo.alas and (self.robo.y + mitat(self.robo)[1]) + self.robo.nopeus <= self.nayton_korkeus:
-            self.robo.y += self.robo.nopeus
+
 
 
     def laske_kulma(self, objekti1, objekti2):  # Lasketaan kahden objektin välinen kulma
@@ -295,9 +315,9 @@ class Peli:
         # Tarkistetaan osuiko hirviö tavaraan. tiputus-parametrin ollessa false tarkastetaan osuma kolikkoon ja sen ollessa true tarkastetaan osuma oveen
         x_ero_k, y_ero_k, x_kokoero_k, y_kokoero_k = self.positioerot(self.hirvio, self.kolikko)
         if tiputus:
-            x_ero_t, y_ero_t, x_kokoero_t, y_kokoero_t = self.positioerot(self.hirvio, self.tiputettu_ovi)
+            x_ero_t, y_ero_t, x_kokoero_t, y_kokoero_t = self.positioerot(self.hirvio, self.robo.tiputettu_ovi)
             if x_ero_t <= x_kokoero_t and y_ero_t <= y_kokoero_t:
-                self.tiputettu_ovi = None  # Jos on osuttu oveen, niin poistetaan ovi kentältä
+                self.robo.tiputettu_ovi = None  # Jos on osuttu oveen, niin poistetaan ovi kentältä
                 self.hirvio.pysaytys = True  # Pysäytetään hirviön liike
                 self.robo.ovicd = True
                 self.robo.ovicount = 600
@@ -306,21 +326,7 @@ class Peli:
             self.kolikko = None  # Jos hirviö osuu kolikkoon niin poistetaan kolikko
             self.hirvio.kolikoita += 1  # Lisätään yksi kolikko hirviön saldoon
     
-    def tiputa_tavara(self):
-        # Tiputetaan ovi kentälle mikäli pelaajalla on vähintään yksi kolikko ja kentällä ei ole ennestään ovea
-        if self.robo.kolikoita > 0 and self.tiputettu_ovi == None:
-            # Oven tiputuskohta on pelaajan keskipiste
-            robo_kp = keskipiste(self.robo)
-            tiputuskohta_x = robo_kp[0] - self.kuvat["ovi"].get_width() / 2
-            tiputuskohta_y = robo_kp[1] - self.kuvat["ovi"].get_height() / 2
-            self.tiputettu_ovi = self.luo_tavara(positio=(tiputuskohta_x, tiputuskohta_y))  # Kutsutaan metodia luo_tavara positio-argumentilla
-            self.robo.kolikoita -= 1  # Oven tiputus maksaa yhden kolikon
 
-    def nosta_tavara(self):
-        if self.tiputettu_ovi:  # Tarkistetaan onko ovi kentällä
-            x_ero, y_ero, x_kokoero, y_kokoero = self.positioerot(self.robo, self.tiputettu_ovi)
-            if x_ero <= x_kokoero and y_ero <= y_kokoero:  # Katsotaan onko pelaaja riittävän lähellä ovea 
-                self.tiputettu_ovi = None  # Poistetaan ovi mikäli on
 
     def kolikkoero(self):
         return self.robo.kolikoita - self.hirvio.kolikoita
