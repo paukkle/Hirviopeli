@@ -16,6 +16,8 @@ class Robo(Hahmo):
         self.vasemmalle = False
         self.ylos = False
         self.alas = False
+        self.ovicd = False
+        self.ovicount = 0
 
 
 class Hirvio(Hahmo):
@@ -117,6 +119,11 @@ class Peli:
                         self.hirvio.pysaytys = False  # Mikäli on ollut pysähtyneenä tarpeeksi kauan niin nollataan laskuri ja päästetään hirviö liikkeelle
                         self.hirvio.pys_aika = 0
 
+                if self.robo.ovicd == True and self.robo.ovicount < 600:
+                    self.robo.ovicount += 1
+                elif self.robo.ovicd == True and self.robo.ovicount == 600:
+                    self.robo.ovicd = False
+
                 self.piirra_naytto()
                 self.kello.tick(60)
 
@@ -135,7 +142,7 @@ class Peli:
                     self.robo.ylos = True
                 if tapahtuma.key == pygame.K_DOWN:
                     self.robo.alas = True
-                if tapahtuma.key == pygame.K_SPACE and self.tiputettu_ovi == None and self.hirvio.pysaytys == False:
+                if tapahtuma.key == pygame.K_SPACE and self.tiputettu_ovi == None and self.hirvio.pysaytys == False and self.robo.ovicd == False:
                     self.tiputa_tavara()
                 elif tapahtuma.key == pygame.K_SPACE and self.tiputettu_ovi != None:
                     self.nosta_tavara()
@@ -286,6 +293,7 @@ class Peli:
             if x_ero_t <= x_kokoero_t and y_ero_t <= y_kokoero_t:
                 self.tiputettu_ovi = None  # Jos on osuttu oveen, niin poistetaan ovi kentältä
                 self.hirvio.pysaytys = True  # Pysäytetään hirviön liike
+                self.robo.ovicd = True
 
         if x_ero_k <= x_kokoero_k and y_ero_k <= y_kokoero_k:
             self.kolikko = None  # Jos hirviö osuu kolikkoon niin poistetaan kolikko
