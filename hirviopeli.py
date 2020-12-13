@@ -50,6 +50,13 @@ class Robo(Hahmo):
             self.y += self.nopeus
 
 
+    def tarkista_cd(self):
+        if self.ovicd == True and self.ovicount > 0:
+            self.ovicount -= 1
+        elif self.ovicd == True and self.ovicount == 0:
+            self.ovicd = False
+            self.ovicount = None
+
 class Hirvio(Hahmo):
     def __init__(self, kuva, alkupiste: tuple, nopeus: int):
         super().__init__(kuva, alkupiste, nopeus)
@@ -148,11 +155,7 @@ class Peli:
                         self.hirvio.pysaytys = False  # Mikäli on ollut pysähtyneenä tarpeeksi kauan niin nollataan laskuri ja päästetään hirviö liikkeelle
                         self.hirvio.pys_aika = 0
 
-                if self.robo.ovicd == True and self.robo.ovicount > 0:
-                    self.robo.ovicount -= 1
-                elif self.robo.ovicd == True and self.robo.ovicount == 0:
-                    self.robo.ovicd = False
-                    self.robo.ovicount = None
+                self.robo.tarkista_cd()
 
                 self.piirra_naytto()
                 self.kello.tick(60)
