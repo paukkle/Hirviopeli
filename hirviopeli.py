@@ -17,7 +17,7 @@ class Robo(Hahmo):
         self.ylos = False
         self.alas = False
         self.ovicd = False
-        self.ovicount = 0
+        self.ovicount = None
 
 
 class Hirvio(Hahmo):
@@ -119,10 +119,11 @@ class Peli:
                         self.hirvio.pysaytys = False  # Mikäli on ollut pysähtyneenä tarpeeksi kauan niin nollataan laskuri ja päästetään hirviö liikkeelle
                         self.hirvio.pys_aika = 0
 
-                if self.robo.ovicd == True and self.robo.ovicount < 600:
-                    self.robo.ovicount += 1
-                elif self.robo.ovicd == True and self.robo.ovicount == 600:
+                if self.robo.ovicd == True and self.robo.ovicount > 0:
+                    self.robo.ovicount -= 1
+                elif self.robo.ovicd == True and self.robo.ovicount == 0:
                     self.robo.ovicd = False
+                    self.robo.ovicount = None
 
                 self.piirra_naytto()
                 self.kello.tick(60)
@@ -199,6 +200,11 @@ class Peli:
             self.naytto.blit(self.kolikko.kuva, positio(self.kolikko))
         if self.tiputettu_ovi:  # Jos ovi on tiputettuna kentälle, piirretään
             self.naytto.blit(self.tiputettu_ovi.kuva, positio(self.tiputettu_ovi))
+        if self.robo.ovicd:
+            countteri = f"Ovi voidaan tiputtaa: {(self.robo.ovicount) // 60} s"
+            teksti = self.fontti.render(countteri, True, (0, 0, 0))
+            self.naytto.blit(teksti, (850, 20))
+
 
         if aloitus:
             
@@ -294,6 +300,7 @@ class Peli:
                 self.tiputettu_ovi = None  # Jos on osuttu oveen, niin poistetaan ovi kentältä
                 self.hirvio.pysaytys = True  # Pysäytetään hirviön liike
                 self.robo.ovicd = True
+                self.robo.ovicount = 600
 
         if x_ero_k <= x_kokoero_k and y_ero_k <= y_kokoero_k:
             self.kolikko = None  # Jos hirviö osuu kolikkoon niin poistetaan kolikko
