@@ -81,6 +81,7 @@ class Peli:
         pygame.mixer.init()
         pygame.mixer.music.load("./Musiikki/morko.mp3")
         pygame.mixer.music.play(-1)
+        pygame.display.set_icon(pygame.image.load("./kuvat/morko.ico"))
         self.nayton_leveys = 1080
         self.nayton_korkeus = 960
         self.kello = pygame.time.Clock()
