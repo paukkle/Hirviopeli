@@ -78,6 +78,9 @@ class Tavara:
 class Peli:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
+        pygame.mixer.music.load("./Musiikki/morko.mp3")
+        pygame.mixer.music.play(-1)
         self.nayton_leveys = 1080
         self.nayton_korkeus = 960
         self.kello = pygame.time.Clock()
@@ -326,7 +329,7 @@ class Peli:
             self.kolikko = None  # Jos hirviö osuu kolikkoon niin poistetaan kolikko
             self.hirvio.kolikoita += 1  # Lisätään yksi kolikko hirviön saldoon
     
-    
+
     def kolikkoero(self):
         return self.robo.kolikoita - self.hirvio.kolikoita
     
