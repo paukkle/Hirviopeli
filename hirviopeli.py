@@ -96,8 +96,8 @@ class Peli:
 
 
     def alusta_peli(self):
-        self.robo = Robo(self.kuvat["robo"], (self.nayton_leveys - self.kuvat["robo"].get_width(), 0), 5)
-        self.hirvio = Hirvio(self.kuvat["hirvio"], (0, self.nayton_korkeus - self.kuvat["hirvio"].get_height()), 5)
+        self.robo = Robo(self.kuvat["nipsu"], (self.nayton_leveys - self.kuvat["nipsu"].get_width(), 0), 5)
+        self.hirvio = Hirvio(self.kuvat["morko"], (0, self.nayton_korkeus - self.kuvat["morko"].get_height()), 5)
         self.kolikko = self.luo_tavara()
         self.osuma = False  # Kertoo onko peli päättynyt robotin osuessa hirviöön
 
@@ -110,7 +110,7 @@ class Peli:
 
     def lataa_kuvat(self):
         self.kuvat = {}
-        for kuva in ["hirvio", "kolikko", "ovi", "robo"]:
+        for kuva in ["morko", "kolikko", "ovi", "nipsu"]:
             self.kuvat[kuva] = pygame.image.load("./kuvat/" + kuva + ".png")
 
 
