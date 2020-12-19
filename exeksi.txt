@@ -1,0 +1,1 @@
+pyinstaller --add-data ".\kuvat\*.png;." --add-data ".\musiikki\*.mp3;." --add-data ".\kuvat\*.ico;." --onefile hirviopeli.py -n Hirviopeli.exe
