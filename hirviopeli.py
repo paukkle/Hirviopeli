@@ -91,9 +91,9 @@ class Peli:
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
-        pygame.mixer.music.load("./Musiikki/morko.mp3")
+        pygame.mixer.music.load(self.resource_path("morko.mp3"))
         pygame.mixer.music.play(-1)
-        pygame.display.set_icon(pygame.image.load("./kuvat/morko.ico"))
+        pygame.display.set_icon(pygame.image.load(self.resource_path("morko.ico")))
         self.nayton_leveys = 1080
         self.nayton_korkeus = 960
         self.kello = pygame.time.Clock()
@@ -123,9 +123,17 @@ class Peli:
     def lataa_kuvat(self):
         self.kuvat = {}
         for kuva in ["morko", "kolikko", "ovi", "nipsu"]:
-            self.kuvat[kuva] = pygame.image.load("./kuvat/" + kuva + ".png")
+            self.kuvat[kuva] = pygame.image.load(self.resource_path(kuva + ".png"))
 
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
 
+        return os.path.join(base_path, relative_path)  
 
     def silmukka(self):
         self.kaynnistys = True  # Käytetään ilmaisemaan aloitusruudun on-off-toimintaa
